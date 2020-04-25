@@ -57,8 +57,7 @@ const postRegister = (req, res, next) => {
           });
           res.status(201).send({ msg: { id: 2, text: "user created successfuly" } });
           })
-        } else {
-          // if user exists already
+        } else { // if user exists already
           res.status(401).send({ msg: { id: 1, text: "user already exists" } });
         }
       }).catch((err) => console.log(err));

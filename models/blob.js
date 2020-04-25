@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../util/database');
 
-const State = sequelize.define('mvcState', {
+const Blob = sequelize.define('mvcBlob', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -13,18 +13,14 @@ const State = sequelize.define('mvcState', {
     type: Sequelize.INTEGER,
     allowNull: true,
   },
-  syncStatus: {
-    type: Sequelize.INTEGER,
-    allowNull: true,
-  },
-  syncStatusName: {
+  blobName: {
     type: Sequelize.STRING,
     allowNull: true,
   },
-  syncUpdated: {
-    type: Sequelize.DATE,
+  containerName: {
+    type: Sequelize.STRING,
     allowNull: true,
   }
 });
 
-module.exports = State;
+module.exports = Blob;

@@ -90,7 +90,7 @@ const AzureServiceRequest = sequelize.define('mvcAzureServiceRequest', {
     allowNull: true
   },
   sr_cust_module: {
-    type: Sequelize.NUMBER,
+    type: Sequelize.INTEGER,
     allowNull: true
   },
   module_klh_name: {

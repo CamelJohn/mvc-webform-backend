@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const sequelize = require('./util/database');
 
 // routes
-const serviceRoutes = require('./routes/service-request');
+const serviceRoutes = require('./routes/crud-service-request');
 const userRoutes = require('./routes/user');
 const pwdRoutes = require('./routes/password');
 const authRoutes = require('./routes/auth');
@@ -13,12 +13,14 @@ const authRoutes = require('./routes/auth');
 // tables
 const User = require('./models/user');
 const Token = require('./models/token');
+const SSR = require('./models/azure-service-request');
+const Blob = require('./models/blob');
 
 const app = express();
 
 app.use(bodyParser.json());
 
-// app.use('/service-request', serviceRoutes);
+app.use('/service-request', serviceRoutes);
 app.use('/user', userRoutes);
 app.use('/password', pwdRoutes);
 app.use('/auth', authRoutes);
@@ -40,6 +42,8 @@ const PORT = process.env.PORT || 3000;
 // defining table relations
 Token.belongsTo(User, { constraints: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 User.hasMany(Token);
+SSR.hasOne(Blob);
+Blob.belongsTo(SSR);
 
 
 // sequelize.sync({ force: true })
