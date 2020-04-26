@@ -15,18 +15,18 @@ module.exports = router;
  */
 
  /**
-  * @route /service-request/open
+  * @route /bulk-service-request/open
   * @method GET
   */
  
   /**
-  * @route /service-request/closed
+  * @route /bulk-service-request/closed
   * @method GET
   */
   
   
   /**
-  * @route /service-request/by-email
+  * @route /bulk-service-request/by-email
   * @method POST
   * @param { email }
   */

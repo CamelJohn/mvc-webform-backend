@@ -1,5 +1,4 @@
 // tables
-const ASR = require("../models/azure-service-request");
 const SSR = require("../models/sysaid-service-request");
 
 const Op = require("sequelize");

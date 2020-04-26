@@ -18,7 +18,7 @@ const createSr = (req, res, next) => {
   const description = req.body.description;
   const impact = req.body.impact;
   const module = req.body.klhModule;
-  ASR.create({// create service request and insert into sysaid_sr table
+  ASR.create({ // create service request and insert into sysaid_sr table
     problem_type: problemType,
     problem_sub_type: problemSubType,
     title: title,
@@ -31,12 +31,12 @@ const createSr = (req, res, next) => {
     sr_cust_module: module,
     status: 1,
     update_time: new Date(),
-  }).then((ssr) => {
-    Blob.create({ srId: ssr.id });
-    return ssr;
-  }).then((ssr) => {
+  }).then((asr) => {
+    Blob.create({ srId: asr.id });
+    return asr;
+  }).then((asr) => {
     State.create({
-      srId: ssr.id,
+      srId: asr.id,
       syncStatus: 0,
       syncStatusName: "waiting insert sync",
       syncUpdated: new Date(),
@@ -52,8 +52,10 @@ const editSr = (req, res, next) => {
   const impact = req.body.affection;
   const module = req.body.klhModule;
   const status = req.body.status;
-  State.findAll({ where: { srId: srId }})
-  .then(([state]) => { 
+  State.findOne({ where: { srId: srId }, raw: true })
+  .then((state) => { 
+    console.log(state);
+    
     if (!state) {
       State.create({
         srId: srId,
@@ -65,26 +67,28 @@ const editSr = (req, res, next) => {
         res.status(201).send('created a new state');
       }).catch(err => res.status(400).send('something went wrong'));
     } else {
-      if (state.syncStatus === 1 || state.syncStatus === 2 || state.syncStatus === 3) {
+      if (state.syncStatus == "1" || state.syncStatus == "2" || state.syncStatus == "3") {
         state.syncStatus = 2;
         state.syncStatusName = 'waiting update sync';
         state.syncUpdated = new Date();
-        ASR.findOne({ where: { srId: srId}})
-        .then(sr => { 
+        
+        ASR.findOne({ where: { srId: srId } })
+        .then((sr) => {          
           sr.title = title;
           sr.description = description;
           sr.impact = impact;
           sr.sr_cust_module = module;
           sr.status = status;
           sr.update_time = new Date();
-          // mail handling
           res.send({ id: 2, text: 'success' });
+          sr.save();
+          // mail handling
         }).catch(err => {
           console.log(err)
           res.send({ id: 1, text: err.message })
         })
       }
-      else if (state.syncStatus === 6) {
+      else if (state.syncStatus == "6") {
         state.syncStatus = 6;
         state.syncStatusName ='error';
         syncUpdated = new Date();
@@ -111,7 +115,7 @@ const deleteSr = (req, res, next) => {
       })
       handlers.removeSr(res, sr.srId);
     } else {
-      if (sr.syncStatus !== '4' || sr.syncStatus !== '5' || sr.syncStatus !== '6') {
+      if (sr.syncStatus != '4' || sr.syncStatus != '5' || sr.syncStatu !== '6') {
         sr.syncStatus = 4;
         sr.syncStatusName = 'delete';
         return sr.save()

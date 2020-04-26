@@ -2,6 +2,7 @@ const TokenGenerator = require("uuid-token-generator");
 const jwt = require("jsonwebtoken");
 const config = require("../util/config");
 const SSR = require('../models/sysaid-service-request');
+// const ASR = require('../models/azure-service-request');
 
 exports.cellHandler = (cell) => {
   let res;
@@ -19,10 +20,7 @@ exports.tokenExpirationDate = () => {
   let d = new Date();
   let d2 = new Date(d);
   d2.setMinutes(d.getMinutes() + 150); // add 30 minutes to token creation time
-  let date = `${d2.toISOString().split("T")[0]} ${d2
-    .toISOString()
-    .split("T")[1]
-    .slice(0, 8)}`; // set token expiration time
+  let date = `${d2.toISOString().split("T")[0]} ${d2.toISOString().split("T")[1].slice(0, 8)}`; // set token expiration time
   return date;
 }; // generates an expiration date for tokens
 
@@ -47,7 +45,7 @@ exports.openSr = (res, sr) => {
   if (allSr.length !== 0) {
     res.status(201).send({ id: 2, data: allSr });
   } else {
-    res.status().send({ id: 1, text: "no service requests" });
+    res.status(400).send({ id: 1, text: "no service requests" });
   }
 }; // refactored open service requests (all, specific user)
 
@@ -56,7 +54,7 @@ exports.closedSr = (res, sr) => {
   if (allSr.length !== 0) {
     res.status(201).send({ id: 2, data: allSr });
   } else {
-    res.status().send({ id: 1, text: "no service requests" });
+    res.status(400).send({ id: 1, text: "no service requests" });
   }
 }; // refactored closed service requests (all, specific user)
 
@@ -64,14 +62,19 @@ exports.userAllSr = (res, sr) => {
   if (sr.length !== 0) {
     res.status(201).send({ id: 2, data: sr });
   } else {
-    res.status().send({ id: 1, text: "no service requests" });
+    res.status(400).send({ id: 1, text: "no service requests" });
   }
 }; // refactored all service requests (specific user)
 
 exports.removeSr = (res, srId) => {
-  SSR.findAll({ where: { srId: sr.srId }})
-  .then(sr => { 
-    sr.destroy();
-    res.status(200).send({ id: 2, text: 'success' }) 
+  SSR.findOne({ where: { id: srId }})
+  .then((sr) => { 
+    if (!sr) {
+      res.status(400).send({ id: 1, text: 'there is not sr with that id' })
+    } else {
+      sr.destroy();
+      res.status(200).send({ id: 2, text: 'success' }) 
+    }
+    
   }).catch(err => { res.status(400).send({ id: 1, text: err.message }) })
 }

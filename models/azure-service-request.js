@@ -133,3 +133,4 @@ const AzureServiceRequest = sequelize.define('mvcAzureServiceRequest', {
 });
 
 module.exports = AzureServiceRequest;
+

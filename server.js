@@ -5,7 +5,9 @@ const bodyParser = require('body-parser');
 const sequelize = require('./util/database');
 
 // routes
-const serviceRoutes = require('./routes/crud-service-request');
+const crudSRRoutes = require('./routes/crud-service-request');
+const userSRRoutes = require('./routes/user-service-request');
+const bulkSRRoutes = require('./routes/bulk-service-request');
 const userRoutes = require('./routes/user');
 const pwdRoutes = require('./routes/password');
 const authRoutes = require('./routes/auth');
@@ -13,18 +15,20 @@ const authRoutes = require('./routes/auth');
 // tables
 const User = require('./models/user');
 const Token = require('./models/token');
-const SSR = require('./models/azure-service-request');
+const SSR = require('./models/sysaid-service-request');
+const ASR = require('./models/azure-service-request');
 const Blob = require('./models/blob');
 
 const app = express();
 
 app.use(bodyParser.json());
 
-app.use('/service-request', serviceRoutes);
 app.use('/user', userRoutes);
 app.use('/password', pwdRoutes);
 app.use('/auth', authRoutes);
-
+app.use('/crud-service-request', crudSRRoutes);
+app.use('/user-service-request',userSRRoutes);
+app.use('/bulk-service-request', bulkSRRoutes);
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -36,15 +40,13 @@ app.use((req, res, next) => {
   next();
 });
 
-
 const PORT = process.env.PORT || 3000;
 
 // defining table relations
 Token.belongsTo(User, { constraints: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 User.hasMany(Token);
 SSR.hasOne(Blob);
-Blob.belongsTo(SSR);
-
+Blob.belongsTo(ASR);
 
 // sequelize.sync({ force: true })
 sequelize.sync()
