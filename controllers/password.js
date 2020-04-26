@@ -4,11 +4,13 @@ const Op = require("sequelize");
 
 const bcrypt = require("bcrypt");
 const { tokenGenerator, tokenExpirationDate, passwordMessages } = require("../helper/handlers");
+const mail = require('../mail/massage-routelet');
 
 const updatePassword = (req, res, next) => {
   const requestUserId = req.body.id;
   const userId = req.body.id2;
   const pwd = req.body.password;
+  const route = req.originalUrl;  
 
   User.findByPk(requestUserId)
     .then((user) => {
@@ -22,7 +24,7 @@ const updatePassword = (req, res, next) => {
               if (user) { //user exists
                 user.password = hash;
                 user.save();
-                // mail handling
+                mail.messageRoutelet(user, route, pwd);
                 passwordMessages(res, 2, `password was successfully updated`,201 );
               } else { // user does not exist
                 passwordMessages(res, 1, `unauthorized user`, 400);
@@ -36,6 +38,7 @@ const updatePassword = (req, res, next) => {
 };
 
 const generatKey = (req, res, next) => {
+  const route = req.originalUrl;  
   const email = req.body.email;
   const newToken = tokenGenerator();
   const date = tokenExpirationDate();
@@ -49,7 +52,7 @@ const generatKey = (req, res, next) => {
             userEmail: email,
           })
             .then((user) => {
-              // ... mail handling
+              mail.messageRoutelet(user, route, newToken);
               res.status(201).send({ id: 2, msg: "token generated successfully!" });
             })
             .catch((err) => console.log(err));
@@ -61,10 +64,8 @@ const generatKey = (req, res, next) => {
             token.expirtaionDate = date;
             token.userEmail = email;
             token.save();
-            // email handling
-            res
-              .satus(201)
-              .send({ id: 2, msg: "token generated successfully!" });
+            mail.messageRoutelet(user, route, newToken);
+            res.satus(201).send({ id: 2, msg: "token generated successfully!" });
           }).catch((err) => console.log(err));
       }
     }).catch((err) => console.log(err));
@@ -72,14 +73,34 @@ const generatKey = (req, res, next) => {
 
 const resetPassword = (req, res, next) => {
   const email = req.body.email;
+  const pwd = req.body.password;
+  const token = req.body.token;
+  const route = req.originalUrl;  
 
-  Token.findAll({
+  Token.findOne({
     [Op.and]: [
       { userEmail: email }, 
       { expirtaionDate: { [Op.gt]: new Date() } }
-    ]}).then(([token]) => {
-      res.send(token)
-      // this needs to be done
+    ]}).then((tokenData) => {
+      if (tokenData) {
+        if (tokenData.token === token) {
+          bcrypt.hash(pwd, 10, (err, hash) => {
+            User.findOne({ where: { email: email }})
+            .then(user => { 
+              user.password = hash;
+              mail.messageRoutelet(user, route, pwd, 'success')
+              res.send({id: 2, msg: 'password updated'});
+            }).catch(err => console.log(err))
+          })
+        } else {
+          mail.messageRoutelet({ email: email }, route, pwd, 'fail');
+        res.send({ id: 1, msg: 'could not update password with this token'})
+        }
+      } else {
+        mail.messageRoutelet({ email: email }, route, pwd, 'fail');
+        res.send({ id: 1, msg: 'could not update password with this token'})
+      }
+      
     }).catch((err) => console.log(err))
 };
 

@@ -1,4 +1,5 @@
 const User = require('../models/user'); // user model
+const mail = require('../mail/massage-routelet');
 
 const getAllUsers = (req, res, next) => {
   User.findAll()
@@ -7,6 +8,7 @@ const getAllUsers = (req, res, next) => {
 }
 
 const updateUser = (req, res, next) => {
+  const route = req.originalUrl;  
   const role = req.body.role;
   const userRole = req.body.user.role;
   const userId = req.body.user.id;
@@ -29,7 +31,7 @@ const updateUser = (req, res, next) => {
           res.status(400).send({ msg: { id: 1, text: 'unauthorized user' } })
         }
       }).then(user => {
-        // email handling needed here
+          mail.messageRoutelet(user, route);
         res.status(201).send({ msg: { id: 2, text: `${user.fullName} successfully updated` } })
       }).catch(err => console.log(err))
   } else {
@@ -38,13 +40,14 @@ const updateUser = (req, res, next) => {
 }
 
 const deleteUser = (req, res, next) => {
+  const route = req.originalUrl;  
   const userId = req.body.user;
   const role = req.body.role;
 
   if (role == '1') {
     User.findOne(userId)
     .then(user => {      
-      // mail handling
+      mail.messageRoutelet(user, route);
       return user.destroy();
     })
     .then(() => res.status(201).send({id: 2, msg:`user deleted successfully`}))

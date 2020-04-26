@@ -4,8 +4,8 @@ const SSR = require('../models/sysaid-service-request');
 const Blob = require("../models/blob");
 const State = require('../models/state');
 
-const Op = require("sequelize");
 const handlers = require("../helper/handlers");
+const mail = require('../mail/massage-routelet');
 
 const createSr = (req, res, next) => {
   const problemType = req.body.mainCategory;
@@ -52,6 +52,8 @@ const editSr = (req, res, next) => {
   const impact = req.body.affection;
   const module = req.body.klhModule;
   const status = req.body.status;
+  const route = req.originalUrl;  
+
   State.findOne({ where: { srId: srId }, raw: true })
   .then((state) => { 
     console.log(state);
@@ -82,7 +84,7 @@ const editSr = (req, res, next) => {
           sr.update_time = new Date();
           res.send({ id: 2, text: 'success' });
           sr.save();
-          // mail handling
+          mail.messageRoutelet(sr, route);
         }).catch(err => {
           console.log(err)
           res.send({ id: 1, text: err.message })
@@ -92,7 +94,7 @@ const editSr = (req, res, next) => {
         state.syncStatus = 6;
         state.syncStatusName ='error';
         syncUpdated = new Date();
-        // mail handling
+        // mail.messageRoutelet(sr, route);
         res.status(200).send({ id: 2, text: 'success'});
       }
       else {
@@ -104,6 +106,7 @@ const editSr = (req, res, next) => {
 
 const deleteSr = (req, res, next) => {
   const srId = req.body.srId;
+  const route = req.originalUrl;  
   State.findOne({ where: { srId: srId }})
   .then((sr) => { 
     if (!sr) {
@@ -113,15 +116,21 @@ const deleteSr = (req, res, next) => {
         syncStatusName: 'delete',
         syncUpdated: new Date()
       })
-      handlers.removeSr(res, sr.srId);
+    SSR.findOne({ where: { srId: srId }})
+    .then(sr => { 
+      mail.messageRoutelet(sr, route)
+      sr.destroy();
+    }).catch(err => console.log(err))
     } else {
       if (sr.syncStatus != '4' || sr.syncStatus != '5' || sr.syncStatu !== '6') {
         sr.syncStatus = 4;
         sr.syncStatusName = 'delete';
-        return sr.save()
-        .then(sr => { 
-         handlers.removeSr(res, sr.srId);
-        }).catch(err => console.log(err))
+    SSR.findOne({ where: { srId: srId }})
+    .then(sr => { 
+    mail.messageRoutelet(sr, route)
+      sr.destroy();
+    }).catch(err => console.log(err))
+        sr.save();
       }
     }
   }).catch(err => console.log(err))
