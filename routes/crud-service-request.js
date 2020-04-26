@@ -19,5 +19,16 @@ module.exports = router;
   * @method POST
   * @param { mainCategory, subCategory, title, fullName, id, emailAddress, phoneNumber, description, impact, klhModule }
   */
+
+  /**
+  * @route /service-request/edit
+  * @method POST
+  * @param { srId }
+  */
   
- 
+  /**
+  * @route /service-request/delete
+  * @method POST
+  * @param { srId }
+  */
+  

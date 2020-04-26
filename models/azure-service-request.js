@@ -9,7 +9,7 @@ const AzureServiceRequest = sequelize.define('mvcAzureServiceRequest', {
     allowNull: false,
     primaryKey: true
   },
-  sr_id: {
+  srId: {
     type: Sequelize.INTEGER,
     allowNull: true,
   },

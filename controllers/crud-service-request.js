@@ -46,7 +46,56 @@ const createSr = (req, res, next) => {
 };
 
 const editSr = (req, res, next) => {
-  
+  const srId = req.body.srId;
+  const title = req.body.title;
+  const description = req.body.description;
+  const impact = req.body.affection;
+  const module = req.body.klhModule;
+  const status = req.body.status;
+  State.findAll({ where: { srId: srId }})
+  .then(([state]) => { 
+    if (!state) {
+      State.create({
+        srId: srId,
+        syncStatus: 2,
+        syncStatusName: 'waiting update sync',
+        syncUpdated: new Date()
+      }).then(data => { 
+        console.log(data);
+        res.status(201).send('created a new state');
+      }).catch(err => res.status(400).send('something went wrong'));
+    } else {
+      if (state.syncStatus === 1 || state.syncStatus === 2 || state.syncStatus === 3) {
+        state.syncStatus = 2;
+        state.syncStatusName = 'waiting update sync';
+        state.syncUpdated = new Date();
+        ASR.findOne({ where: { srId: srId}})
+        .then(sr => { 
+          sr.title = title;
+          sr.description = description;
+          sr.impact = impact;
+          sr.sr_cust_module = module;
+          sr.status = status;
+          sr.update_time = new Date();
+          // mail handling
+          res.send({ id: 2, text: 'success' });
+        }).catch(err => {
+          console.log(err)
+          res.send({ id: 1, text: err.message })
+        })
+      }
+      else if (state.syncStatus === 6) {
+        state.syncStatus = 6;
+        state.syncStatusName ='error';
+        syncUpdated = new Date();
+        // mail handling
+        res.status(200).send({ id: 2, text: 'success'});
+      }
+      else {
+        res.status(400).send('record was not updated');
+      }
+    }
+  }).catch(err => console.log(err))
 };
 
 const deleteSr = (req, res, next) => {
