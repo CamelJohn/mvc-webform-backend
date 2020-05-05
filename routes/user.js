@@ -14,7 +14,7 @@ module.exports = router;
  *  @author Jonathan Atia
  */
 
- /** @route /user/getAll
+ /** @route /user/all
  * @method GET
  */
 

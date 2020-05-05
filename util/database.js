@@ -7,8 +7,9 @@ const sequelize = new Sequelize("srdb", "srdbadmin", "p2B96ytMKT95TkVj", {
     options: {
       encrypt: true,
       useUTC: false,
+      dateFirst: 1,
       trustServerCertificate: true,
-      enableArithAbort: false,
+      enableArithAbort: false
     },
   },
 });

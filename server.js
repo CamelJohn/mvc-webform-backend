@@ -40,13 +40,13 @@ app.use((req, res, next) => {
   next();
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // defining table relations
-Token.belongsTo(User, { constraints: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' });
-User.hasMany(Token);
-SSR.hasOne(Blob);
-Blob.belongsTo(ASR);
+// Token.belongsTo(User, { constraints: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+// User.hasMany(Token);
+// SSR.hasOne(Blob);
+// Blob.belongsTo(ASR);
 
 // sequelize.sync({ force: true })
 sequelize.sync()
