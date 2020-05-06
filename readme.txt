@@ -11,7 +11,3 @@ DATE.prototype._stringify = function _stringify(date, options) {
   // return date.format('YYYY-MM-DD HH:mm:ss.SSS Z');
   return date.format('YYYY-MM-DD HH:mm:ss.SSS');
 };
-
-###2
-
-need to install bcrypt on cloud before runing the code since bcrypt was installed in the wrond compatability (64 instead of 32 or something like that)

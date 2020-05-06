@@ -7,7 +7,7 @@ const State = require('../models/state');
 const handlers = require("../helper/handlers");
 const mail = require('../mail/massage-routelet');
 
-const createSr = async (req, res, next) => {
+const createSr = async (req, res, next) => {  
   const problemType = req.body.mainCategory;
   const problemSubType = req.body.subCategory;
   const title = req.body.title;
@@ -101,53 +101,6 @@ const editSr = async (req, res, next) => {
   } catch (err) {
     res.status(500).send(err.message);
   }
-
-  // State.findOne({ where: { srId: srId }, raw: true })
-  // .then((state) => {     
-  //   if (!state) {
-  //     State.create({
-  //       srId: srId,
-  //       syncStatus: 2,
-  //       syncStatusName: 'waiting update sync',
-  //       syncUpdated: new Date()
-  //     }).then(data => { 
-  //       console.log(data);
-  //       res.status(201).send('created a new state');
-  //     }).catch(err => res.status(400).send('something went wrong'));
-  //   } else {
-  //     if (state.syncStatus == "1" || state.syncStatus == "2" || state.syncStatus == "3") {
-  //       state.syncStatus = 2;
-  //       state.syncStatusName = 'waiting update sync';
-  //       state.syncUpdated = new Date();
-        
-  //       ASR.findOne({ where: { srId: srId } })
-  //       .then((sr) => {          
-  //         sr.title = title;
-  //         sr.description = description;
-  //         sr.impact = impact;
-  //         sr.sr_cust_module = module;
-  //         sr.status = status;
-  //         sr.update_time = new Date();
-  //         res.send({ id: 2, text: 'success' });
-  //         sr.save();
-  //         mail.messageRoutelet(sr, route);
-  //       }).catch(err => {
-  //         console.log(err)
-  //         res.send({ id: 1, text: err.message })
-  //       })
-  //     }
-  //     else if (state.syncStatus == "6") {
-  //       state.syncStatus = 6;
-  //       state.syncStatusName ='error';
-  //       syncUpdated = new Date();
-  //       // mail.messageRoutelet(sr, route);
-  //       res.status(200).send({ id: 2, text: 'success'});
-  //     }
-  //     else {
-  //       res.status(400).send('record was not updated');
-  //     }
-  //   }
-  // }).catch(err => console.log(err))
 };
 
 const deleteSr = async (req, res, next) => {
