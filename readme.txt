@@ -1,9 +1,12 @@
-###1
+# **Mvc Service Requests**
 
-whilst installing node_modules you need to change a folder in the sequelize lib :
+## **Upon  Installation**
+
+> whilst installing node_modules you need to change a folder in the sequelize lib :
 
 sequelize/lib/data-types.js => 
 
+```javascript
 DATE.prototype._stringify = function _stringify(date, options) {
   date = this._applyTimezone(date, options);
 
@@ -11,3 +14,4 @@ DATE.prototype._stringify = function _stringify(date, options) {
   // return date.format('YYYY-MM-DD HH:mm:ss.SSS Z');
   return date.format('YYYY-MM-DD HH:mm:ss.SSS');
 };
+```
