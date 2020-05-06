@@ -6,7 +6,7 @@ const getAllUsers = async (req, res, next) => {
   try {
     const users = await User.findAll()
     if (users) {
-      res.status(200).send(users)
+      res.status(200).send({ users: users})
     }
   } catch (err) {
     res.status(err.status).send(err.message)

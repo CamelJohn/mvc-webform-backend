@@ -4,6 +4,7 @@ const SSR = require('../models/sysaid-service-request');
 const Blob = require("../models/blob");
 const State = require('../models/state');
 const Image = require('../models/service-request-images');
+const BlobServer = require('../models/mvcBlobServers');
 
 const handlers = require("../helper/handlers");
 const mail = require('../mail/massage-routelet');
@@ -38,7 +39,7 @@ const createSr = async (req, res, next) => {
       update_time: new Date(),
     })
     await Blob.create({ srId: asr.id});
-    await Image.create({ azureId: asr.id, blobName: blobName, containerName: containerName });
+    await Image.create({ azureId: asr.id, blobName: blobName, containerName: containerName, blobServer: 1 });
     await State.create({
       srId: asr.id,
       syncStatus: 0,

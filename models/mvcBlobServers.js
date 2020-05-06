@@ -10,7 +10,7 @@ const BlobServers = sequelize.define('mvcBlobServers', {
     primaryKey: true,
   },
   serverName: {
-    type: Sequelize.STRING(50),
+    type: Sequelize.STRING,
     allowNull: true,
   },
   serverUrl: {

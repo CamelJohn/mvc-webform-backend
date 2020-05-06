@@ -70,7 +70,7 @@ exports.removeSr = async (res, srId) => {
   try {
     const sr = await SSR.findOne({ where: { id: srId } });
     if (!sr) {
-      res.status(400).send({ id: 1, text: 'there is not sr with that id' });
+      res.status(400).send({ id: 1, text: 'there is no sr with that id' });
     } else {
       await sr.destroy();
       res.status(200).send({ id: 2, text: 'success' });
@@ -78,4 +78,4 @@ exports.removeSr = async (res, srId) => {
   } catch (err) {
     res.status(400).send({ id: 1, text: err.message });
   }
-};
+}; // not in user at the moment
