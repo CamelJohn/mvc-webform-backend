@@ -21,10 +21,10 @@ const Token = sequelize.define('mvcToken', {
     type: DataType.STRING,
     allowNull: true,
   },
-  mvcUserId: {
-    type: DataType.INTEGER,
-    allowNull: true
-  }
+  // mvcUserId: {
+  //   type: DataType.INTEGER,
+  //   allowNull: true
+  // }
 });
 
 module.exports = Token;

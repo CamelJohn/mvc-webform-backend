@@ -12,13 +12,6 @@ const userRoutes = require('./routes/user');
 const pwdRoutes = require('./routes/password');
 const authRoutes = require('./routes/auth');
 
-// tables
-const User = require('./models/user');
-const Token = require('./models/token');
-const SSR = require('./models/sysaid-service-request');
-const ASR = require('./models/azure-service-request');
-const Blob = require('./models/blob');
-
 const app = express();
 
 app.use(bodyParser.json());
@@ -41,12 +34,6 @@ app.use((req, res, next) => {
 });
 
 const PORT = process.env.PORT || 8080;
-
-// defining table relations
-// Token.belongsTo(User, { constraints: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' });
-// User.hasMany(Token);
-// SSR.hasOne(Blob);
-// Blob.belongsTo(ASR);
 
 // sequelize.sync({ force: true })
 sequelize.sync()

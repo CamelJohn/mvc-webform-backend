@@ -3,6 +3,7 @@ const ASR = require("../models/azure-service-request");
 const SSR = require('../models/sysaid-service-request');
 const Blob = require("../models/blob");
 const State = require('../models/state');
+const Image = require('../models/service-request-images');
 
 const handlers = require("../helper/handlers");
 const mail = require('../mail/massage-routelet');
@@ -18,7 +19,9 @@ const createSr = async (req, res, next) => {
   const description = req.body.description;
   const impact = req.body.impact;
   const klhModule = req.body.klhModule;
-
+  const blobName = rea.body.blobName;
+  const containerName = req.body.containerName;
+  
   try {
     const asr = await ASR.create({ // create service request and insert into sysaid_sr table
       problem_type: problemType,
@@ -35,6 +38,7 @@ const createSr = async (req, res, next) => {
       update_time: new Date(),
     })
     await Blob.create({ srId: asr.id});
+    await Image.create({ azureId: asr.id, blobName: blobName, containerName: containerName });
     await State.create({
       srId: asr.id,
       syncStatus: 0,
@@ -117,7 +121,9 @@ const deleteSr = async (req, res, next) => {
       syncUpdated: new Date()
       })
       const ssr = await SSR.findOne({ where: { id: srId }});
+      const image = await Image.findOne({ where: { sysId : ssr.id }})
       // mail.messageRoutelet(ssr, route)
+      await image.destroy();
       await ssr.destroy();
       res.status(201).json({ message: 'state does not exist, created a state with id 4 to delete'})
     } else {
@@ -127,7 +133,10 @@ const deleteSr = async (req, res, next) => {
         stateToUpdate.syncStatusName = 'delete';
         await stateToUpdate.save()
         const ssr = await SSR.findOne({ where: { srId: srId }})
+        const image = await Image.findOne({ where: { sysId : ssr.id }})
+
         // mail.messageRoutelet(ssr, route)
+        await image.destroy();
         await ssr.destroy();
         res.status(201).json({ message: 'sysaid service request destroyed, status updated for deletion'})
       }
