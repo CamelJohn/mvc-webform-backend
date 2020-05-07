@@ -11,7 +11,7 @@ const getOpenedByUser = async (req, res, next) => {
     });
     handlers.openSr(res, sr);
   } catch (err) {
-    console.log(err);
+    res.status(500).json({ message: err.message })
   }
 };
 
@@ -24,7 +24,7 @@ const getClosedByUser = async (req, res, next) => {
     }); //find all with status 1 or 3
     handlers.closedSr(res, sr);
   } catch (err) {
-    console.log(err);
+    res.status(500).json({ message: err.message })
   }
 };
 

@@ -46,9 +46,9 @@ const createSr = async (req, res, next) => {
       syncStatusName: "waiting insert sync",
       syncUpdated: new Date(),
     });
-    res.status(200).send({ id: 2, msg: "success" });
+    res.status(201).send({ id: 2, msg: "success" });
   } catch (err) {
-    res.status(400).send({ id: 1, msg: err.message })
+    res.status(500).send({ id: 1, msg: err.message })
   }
 };
 
@@ -60,6 +60,7 @@ const editSr = async (req, res, next) => {
   const klhModule = req.body.klhModule;
   const status = req.body.status;
   const route = req.originalUrl;
+  const stats = [1,2,3];
 
   try {
     const state = await State.findOne({ where: { srId: srId }, raw: true })
@@ -75,32 +76,44 @@ const editSr = async (req, res, next) => {
       // console.log(createdState);
       res.status(201).send('created a new state');
     } else {
-      if (state.syncStatus === 1 || state.syncStatus === 2 || state.syncStatus === 3) {
+      if (stats.includes(state.syncStatus)) {
+      // if (state.syncStatus === 1 || state.syncStatus === 2 || state.syncStatus === 3) {
+        const updatedSSR = await findOne({ where: { id: srId }});
+        updatedSSR.title = title;
+        updatedSSR.description = description;
+        updatedSSR.impact = impact;
+        updatedSSR.sr_cust_module = klhModule;
+        updatedSSR.status = status;
+        updatedSSR.update_time = new Date();
+        await updatedSSR.save()
+        
         state.syncStatus = 2;
         state.syncStatusName = 'waiting update sync';
         state.syncUpdated = new Date();
-        const asr = await ASR.findOne({ where: { srId: srId } });
-        if (!asr) {
+        await state.save();
+        // const asr = await ASR.findOne({ where: { srId: srId } });
+        // if (!asr) {
 
-        } else {
-        asr.title = title;
-        asr.description = description;
-        asr.impact = impact;
-        asr.sr_cust_module = klhModule;
-        asr.status = status;
-        asr.update_time = new Date();
-        await asr.save();
-        res.send({ id: 2, text: 'success' });
+        // } else {
+        // asr.title = title;
+        // asr.description = description;
+        // asr.impact = impact;
+        // asr.sr_cust_module = klhModule;
+        // asr.status = status;
+        // asr.update_time = new Date();
+        // await asr.save();
+
         // mail.messageRoutelet(asr, route);
-        }
-      } else if (state.syncStatus == '6') {
+        res.status(201).send({ id: 2, text: 'success' });
+        // }
+      } else if (state.syncStatus === 6) {
         state.syncStatus = 6;
         state.syncStatusName = 'error';
         state.syncUpdated = new Date();
         await state.save();
         // mail.messageRoutelet(asr, route);
       } else {
-        res.status(400).send('record was not updated');
+        res.status(401).send('record was not updated');
       }
     }
   } catch (err) {
@@ -111,6 +124,7 @@ const editSr = async (req, res, next) => {
 const deleteSr = async (req, res, next) => {
   const srId = req.body.srId;
   const route = req.originalUrl;  
+  const stats = [4, 5, 6]
 
   try {
     const state = await State.findOne({ where: { srId: srId }});
@@ -128,7 +142,8 @@ const deleteSr = async (req, res, next) => {
       await ssr.destroy();
       res.status(201).json({ message: 'state does not exist, created a state with id 4 to delete'})
     } else {
-      if (state.syncStatus !== 4 || state.syncStatus !== 5 || state.syncStatus !== 6) {
+      // if (state.syncStatus !== 4 || state.syncStatus !== 5 || state.syncStatus !== 6) {
+      if (!stats.includes(state.syncStatus)) {
         const stateToUpdate = await State.findOne({ where: { srId: srId }});
         stateToUpdate.syncStatus = 4;
         stateToUpdate.syncStatusName = 'delete';

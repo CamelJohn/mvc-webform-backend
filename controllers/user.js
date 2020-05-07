@@ -23,7 +23,7 @@ const updateUser = async (req, res, next) => {
   const active = req.body.user.isActive;
   const phone = req.body.user.phoneNumber;
   try {
-    if (role == '1') { // check if user is admin or not
+    if (role === 1) { // check if user is admin or not
       const user = await User.findOne({ where: { id: userId }})
           if (user) {
             user.email = email;
@@ -61,10 +61,10 @@ const deleteUser = async (req, res, next) => {
         await user.destroy();
         res.status(201).send({id: 2, msg:`user deleted successfully`})
     } else {
-      res.status(400).send({id: 1, msg: 'unauthorized user'})
+      res.status(422).send({id: 1, msg: 'unauthorized user'})
     }
   } catch (err) {
-    res.status(500).send({ id: 2, msg: 'failed to delete user', message: err.message})
+    res.status(422).send({ id: 2, msg: 'unauthorized user', message: err.message})
   }
 }
 

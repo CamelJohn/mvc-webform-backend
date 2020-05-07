@@ -1,0 +1,9 @@
+{
+    "env": {
+        "SECRET": "supersecret",
+        "DB": "srdb",
+        "DB_USER": "srdbadmin",
+        "DB_PASSWORD": "p2B96ytMKT95TkVj",
+        "HOST": "sysaidintegration.database.windows.net"
+    }
+}

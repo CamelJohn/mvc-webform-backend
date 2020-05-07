@@ -87,14 +87,14 @@ const resetPassword = async (req, res, next) => {
         user.password = hash;
         await user.save();
         // mail.messageRoutelet(user, route, pwd, 'success');
-        res.send({ id: 2, msg: 'password updated' });
+        res.status(201).send({ id: 2, msg: 'password updated' });
       } else {
         // mail.messageRoutelet({ email: email }, route, pwd, 'fail');
-        res.send({ id: 1, msg: 'could not update password with this token' });
+        res.status(422).send({ id: 1, msg: 'could not update password with this token' });
       }
     } else {
       // mail.messageRoutelet({ email: email }, route, pwd, 'fail');
-      res.send({ id: 1, msg: 'could not update password with this token' });
+      res.status(422).send({ id: 1, msg: 'could not update password with this token' });
     }
   } catch (err) {
     res.status(500).json({ message: err.message })

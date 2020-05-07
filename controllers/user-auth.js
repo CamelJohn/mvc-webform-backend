@@ -21,7 +21,7 @@ const postLogin = async (req, res, next) => {
       if (existingUser) {
         // user exists
         let token = loginJWTToken(existingUser);
-        res.status(200).send({ auth: true, token: token, user: user }); // send token to front
+        res.status(201).send({ auth: true, token: token, user: user }); // send token to front
       } else {
         res
           .status(401)
@@ -33,12 +33,12 @@ const postLogin = async (req, res, next) => {
       }
     } else {
       // what to do if user does not exist or not active
-      res.send({
+      res.status(404).send({
         msg: { id: 2, text: 'the user is not active or does not exist' },
       });
     }
   } catch (err) {
-    console.log(err);
+    res.status(500).json({ message: err.message })
   }
 };
 
@@ -74,7 +74,7 @@ const postRegister = async (req, res, next) => {
       return res.status(401).send({ msg: { id: 1, text: 'user already exists' } });
     }
   } catch (err) {
-    console.log(err)
+    res.status(500).json({ message: err.message })
   }
 };
 

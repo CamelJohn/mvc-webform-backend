@@ -19,7 +19,7 @@ const getAllClosed = async (req, res, next) => {
     const [ssr] = await   SSR.findAll({where: { status: 3 }, raw : true }) //find all with status 1 or 3
     handlers.closedSr(res, ssr);
   } catch (err) {
-    console.log(err)
+    res.status(500).json({ message: err.message })
   }
 };
 
@@ -29,7 +29,7 @@ const getAllByUser = async (req, res, next) => {
     const [ssr] = await SSR.findAll({ [Op.and]: [{ status: [0, 1]}, { email_open: email}]});
     handlers.userAllSr(res, ssr)
   } catch (err) {
-    console.log(err);
+    res.status(500).json({ message: err.message })
   }
 }
 
