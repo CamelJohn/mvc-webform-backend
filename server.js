@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express');
 const bodyParser = require('body-parser');
 
@@ -26,7 +28,7 @@ app.use('/bulk-service-request', bulkSRRoutes);
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST ,GET ,OPTIONS, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type ,Cache-Control, multipart/form-data , application/json ,text/plain, text/html');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type , Authorization ,Cache-Control, multipart/form-data , application/json ,text/plain, text/html');
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }

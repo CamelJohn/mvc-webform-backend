@@ -6,7 +6,7 @@ const State = require('../models/state');
 const Image = require('../models/service-request-images');
 const BlobServer = require('../models/mvcBlobServers');
 
-const handlers = require('../helper/handlers');
+const handlers = require('../helpers/cellHandler');
 const mail = require('../mail/massage-routelet');
 
 const createSr = async (req, res, next) => {
@@ -20,7 +20,7 @@ const createSr = async (req, res, next) => {
   const description = req.body.description;
   const impact = req.body.impact;
   const klhModule = req.body.klhModule;
-  const blobName = rea.body.blobName;
+  const blobName = req.body.blobName;
   const containerName = req.body.containerName;
 
   try {
@@ -52,7 +52,7 @@ const createSr = async (req, res, next) => {
       syncStatusName: 'waiting insert sync',
       syncUpdated: new Date(),
     });
-    res.status(201).send({ id: 2, msg: 'success' });
+    res.status(201).send({ message: 'success' });
   } catch (err) {
     res.status(500).send({ id: 1, msg: err.message });
   }
@@ -67,7 +67,7 @@ const editSr = async (req, res, next) => {
   const status = req.body.status;
   const route = req.originalUrl;
   const stats = [1, 2, 3];
-  const updateUser = req.body.updateUser;
+  // const updateUser = req.body.updateUser;
 
   try {
     const state = await State.findOne({ where: { srId: srId }, raw: true });
@@ -81,7 +81,7 @@ const editSr = async (req, res, next) => {
         syncUpdated: new Date(),
       });
       // console.log(createdState);
-      res.status(201).send('created a new state');
+      res.status(201).send({ message: 'created a new state'});
     } else {
       if (stats.includes(state.syncStatus)) {
         // if (state.syncStatus === 1 || state.syncStatus === 2 || state.syncStatus === 3) {
@@ -89,7 +89,7 @@ const editSr = async (req, res, next) => {
         if (updatedSSR.impact !== impact) {
           sr = {
             srId: updatedSSR.id,
-            updatingUser: updateUser,
+            // updatingUser: updateUser,
             updateDate: new Date(),
           };
           // mail.messageRoutelet(sr, route);
@@ -119,7 +119,7 @@ const editSr = async (req, res, next) => {
         // await asr.save();
 
         // mail.messageRoutelet(asr, route);
-        res.status(201).send({ id: 2, text: 'success' });
+        res.status(201).send({ message: 'success' });
         // }
       } else if (state.syncStatus === 6) {
         state.syncStatus = 6;
@@ -128,7 +128,7 @@ const editSr = async (req, res, next) => {
         await state.save();
         // mail.messageRoutelet(asr, route);
       } else {
-        res.status(401).send('record was not updated');
+        res.status(401).send({ message: 'record was not updated'});
       }
     }
   } catch (err) {
@@ -186,8 +186,4 @@ const deleteSr = async (req, res, next) => {
   }
 };
 
-module.exports = {
-  create: createSr,
-  update: editSr,
-  delete: deleteSr,
-};
+module.exports = { createSr, editSr, deleteSr };

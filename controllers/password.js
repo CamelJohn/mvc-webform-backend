@@ -3,23 +3,21 @@ const Token = require('../models/token');
 const Op = require('sequelize');
 
 const bcrypt = require('bcryptjs');
-const {
-  tokenGenerator,
-  tokenExpirationDate,
-  passwordMessages,
-} = require('../helper/handlers');
+const { tokenGenerator, setTokenExpirationDate } = require('../helpers/tokenHandlers');
 const mail = require('../mail/massage-routelet');
 
 const updatePassword = async (req, res, next) => {
-  const requestUserId = req.body.id;
-  const userId = req.body.id2;
+  // const requestUserId = req.body.id;
+  // const userId = req.body.id2;
+  const userId = req.body.id;
   const pwd = req.body.password;
   const route = req.originalUrl;
 
   try {
-    const reqUser = await User.findByPk(requestUserId);
+    const loggedIn = await User.findOne({ where: { id: req.id }, raw: true });
+    // const reqUser = await User.findByPk(requestUserId);
     const hash = await bcrypt.hash(pwd, 12);
-    if (reqUser.role === 1) {
+    if (loggedIn.role === 1) {
       // if requesting user is admin
       const user = await User.findByPk(userId); // find user to update password
       if (user) {
@@ -27,13 +25,13 @@ const updatePassword = async (req, res, next) => {
         user.password = hash;
         await user.save();
         // mail.messageRoutelet(user, route, pwd);
-        passwordMessages(res, 2, `password was successfully updated`, 201);
+        res.status(201).json({message: 'password was successfully updated'})
       } else {
         // user does not exist
-        passwordMessages(res, 1, `unauthorized user`, 400);
+        res.status(422).json({ message: 'unauthorized user'})
       }
     } else {
-      passwordMessages(res, 1, `unauthorized user`, 400);
+      res.status(422).json({ message: 'unauthorized user'})
     }
   } catch (err) {
     res.status(500).json({ message: err.message })
@@ -44,9 +42,10 @@ const generatKey = async (req, res, next) => {
   const route = req.originalUrl;
   const email = req.body.email;
   const newToken = tokenGenerator();
-  const date = tokenExpirationDate();
+  const date = setTokenExpirationDate();
 
   try {
+    const user = await User.findOne({ where: { email: email }});
     const token = await Token.findOne({ where: { userEmail: email } });
     if (!token) {
       // if email does not exist
@@ -56,16 +55,16 @@ const generatKey = async (req, res, next) => {
         expirtaionDate: date,
         userEmail: email,
       });
-      // mail.messageRoutelet(user, route, newToken);
-      res.status(201).send({ id: 2, msg: 'token generated successfully!' });
+      mail.messageRoutelet({ user, createdToken }, route, newToken);
+      res.status(201).send({ message: 'token generated successfully!' });
       // res.status(201).send({ id: 2, msg: 'token generated successfully!', key: createdToken });
     } else {
       token.token = newToken;
       token.expirtaionDate = date;
       token.userEmail = email;
       await token.save();
-      // mail.messageRoutelet(user, route, newToken);
-      res.status(201).send({ id: 2, msg: 'token generated successfully!' });
+      mail.messageRoutelet({user, token }, route, newToken);
+      res.status(201).send({ message: 'token generated successfully!' });
       // res.status(201).send({ id: 2, msg: 'token generated successfully!', token: token });
     }
   } catch (err) {
@@ -87,14 +86,14 @@ const resetPassword = async (req, res, next) => {
         user.password = hash;
         await user.save();
         // mail.messageRoutelet(user, route, pwd, 'success');
-        res.status(201).send({ id: 2, msg: 'password updated' });
+        res.status(201).send({ message: 'password updated' });
       } else {
         // mail.messageRoutelet({ email: email }, route, pwd, 'fail');
-        res.status(422).send({ id: 1, msg: 'could not update password with this token' });
+        res.status(422).send({ message: 'could not update password with this token' });
       }
     } else {
       // mail.messageRoutelet({ email: email }, route, pwd, 'fail');
-      res.status(422).send({ id: 1, msg: 'could not update password with this token' });
+      res.status(422).send({ message: 'could not update password with this token' });
     }
   } catch (err) {
     res.status(500).json({ message: err.message })

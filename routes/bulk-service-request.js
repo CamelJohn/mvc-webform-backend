@@ -1,12 +1,13 @@
 const router = require('express/index').Router();
 
 const bulkSrController = require('../controllers/bulk-service-request');
+const isAuth = require('../middleware/is-auth');
 
-router.get('/open', bulkSrController.allOpen);
+router.get('/open', isAuth, bulkSrController.getAllOpen);
 
-router.get('/closed', bulkSrController.allClosed);
+router.get('/closed', isAuth, bulkSrController.getAllClosed);
 
-router.post('/by-email', bulkSrController.allUser);
+router.post('/by-email', isAuth, bulkSrController.getAllByUser);
 
 module.exports = router;
 

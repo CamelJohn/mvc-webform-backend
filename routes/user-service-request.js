@@ -1,10 +1,11 @@
 const router = require('express/index').Router();
 
 const userSrContoller = require('../controllers/user-service-request');
+const isAuth = require('../middleware/is-auth');
 
-router.post('/user-open', userSrContoller.openUser);
+router.post('/user-open', isAuth, userSrContoller.openUser);
 
-router.post('/user-closed', userSrContoller.closedUser);
+router.post('/user-closed', isAuth, userSrContoller.closedUser);
 
 module.exports = router;
 

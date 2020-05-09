@@ -1,12 +1,13 @@
 const router = require('express/index').Router();
 
 const userController = require('../controllers/user');
+const isAuth = require('../middleware/is-auth');
 
-router.get('/all', userController.getAll);
+router.get('/all', isAuth, userController.getAll);
 
-router.put('/update', userController.update);
+router.put('/update', isAuth, userController.update);
 
-router.post('/delete', userController.delete); 
+router.post('/delete', isAuth, userController.delete); 
 
 module.exports = router;
 

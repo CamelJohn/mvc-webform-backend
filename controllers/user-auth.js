@@ -7,7 +7,7 @@ const {
   loginJWTToken,
   tokenExpirationDate,
   tokenGenerator,
-} = require('../helper/handlers');
+} = require('../helpers/tokenHandlers');
 
 const postLogin = async (req, res, next) => {
   const email = req.body.email;
@@ -15,30 +15,28 @@ const postLogin = async (req, res, next) => {
 
   try {
     const user = await User.findOne({ where: { email: email } });
-    if (user && user.isActive == '1') {
+    if (user && user.isActive === true) {
       // check if user exists and is active
-      const existingUser = await bcrypt.compare(pwd, user.password); // compare passwords
-      if (existingUser) {
+      const isEqual = await bcrypt.compare(pwd, user.password); // compare passwords
+      if (isEqual) {
         // user exists
-        let token = loginJWTToken(existingUser);
+        let token = loginJWTToken(user);
         res.status(201).send({ auth: true, token: token, user: user }); // send token to front
       } else {
-        res
-          .status(401)
-          .send({
-            auth: false,
-            token: null,
-            msg: { id: 3, text: 'incorrect password' },
-          });
+        res.status(401).send({
+          auth: false,
+          token: null,
+          message: 'incorrect password',
+        });
       }
     } else {
       // what to do if user does not exist or not active
       res.status(404).send({
-        msg: { id: 2, text: 'the user is not active or does not exist' },
+        message: 'the user is not active or does not exist',
       });
     }
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -58,7 +56,7 @@ const postRegister = async (req, res, next) => {
         password: hash,
         fullName: name,
         isActive: 0, // not active by default
-        role: 3 /** @param { what is the status here ? } */,
+        role: 3,
         phoneNumber: phone,
       });
       const expirationDate = tokenExpirationDate();
@@ -67,18 +65,15 @@ const postRegister = async (req, res, next) => {
         token: newToken,
         expirationDate: expirationDate,
         userEmail: email,
-        // mvcUserId: createdUser.id, // update the userId in the token table
+        // update the userId in the token table
       });
-      return res.status(201).send({ msg: { id: 2, text: 'user created successfuly' } });
+      return res.status(201).send({ message: 'user created successfuly' });
     } else {
-      return res.status(401).send({ msg: { id: 1, text: 'user already exists' } });
+      return res.status(401).send({ message: 'user already exists' });
     }
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: err.message });
   }
 };
 
-module.exports = {
-  login: postLogin,
-  signup: postRegister,
-};
+module.exports = { postLogin, postRegister };

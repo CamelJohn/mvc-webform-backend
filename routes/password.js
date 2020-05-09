@@ -1,12 +1,13 @@
 const router = require('express/index').Router();
 
 const passwordController = require('../controllers/password');
+const isAuth = require('../middleware/is-auth');
 
-router.put('/update', passwordController.update);
+router.put('/update', isAuth, passwordController.update);
 
-router.post('/key', passwordController.generate);
+router.post('/key', isAuth, passwordController.generate);
 
-router.post('/reset', passwordController.reset);
+router.post('/reset', isAuth, passwordController.reset);
 
 module.exports = router;
 
