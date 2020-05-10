@@ -1,10 +1,11 @@
 // tables
 const ASR = require('../models/azure-service-request');
 const SSR = require('../models/sysaid-service-request');
-const Blob = require('../models/blob');
-const State = require('../models/state');
-const Image = require('../models/service-request-images');
-const BlobServer = require('../models/mvcBlobServers');
+const STATE = require('../models/state');
+const USER = require('../models/user');
+const BLOB = require('../models/mvcBlob');
+const BLOB_SERVER = require('../models/mvcBlobServers');
+const LOG = require('../models/change-log');
 
 const handlers = require('../helpers/cellHandler');
 const mail = require('../mail/massage-routelet');
@@ -39,14 +40,13 @@ const createSr = async (req, res, next) => {
       status: 1,
       update_time: new Date(),
     });
-    await Blob.create({ srId: asr.id });
-    await Image.create({
+    await BLOB.create({
       azureId: asr.id,
       blobName: blobName,
       containerName: containerName,
       blobServer: 1,
     });
-    await State.create({
+    await STATE.create({
       srId: asr.id,
       syncStatus: 0,
       syncStatusName: 'waiting insert sync',
@@ -67,32 +67,32 @@ const editSr = async (req, res, next) => {
   const status = req.body.status;
   const route = req.originalUrl;
   const stats = [1, 2, 3];
-  // const updateUser = req.body.updateUser;
 
   try {
-    const state = await State.findOne({ where: { srId: srId }, raw: true });
+    const state = await STATE.findOne({ where: { srId: srId }, raw: true });
     console.log(state);
 
     if (!state) {
-      const createdState = await State.create({
+      const createdState = await STATE.create({
         srId: srId,
         syncStatus: 2,
         syncStatusName: 'waiting update sync',
         syncUpdated: new Date(),
       });
-      // console.log(createdState);
       res.status(201).send({ message: 'created a new state'});
     } else {
       if (stats.includes(state.syncStatus)) {
-        // if (state.syncStatus === 1 || state.syncStatus === 2 || state.syncStatus === 3) {
-        const updatedSSR = await findOne({ where: { id: srId } });
+        const updateUser = await USER.findOne({ where: { id: req.id }})
+        const updatedSSR = await SSR.findOne({ where: { id: srId } });
         if (updatedSSR.impact !== impact) {
-          sr = {
-            srId: updatedSSR.id,
-            // updatingUser: updateUser,
-            updateDate: new Date(),
-          };
+          // sr = {
+          //   srId: updatedSSR.id,
+          //   updatingUser: updateUser,
+          //   updateDate: new Date(),
+          // };
           // mail.messageRoutelet(sr, route);
+          await LOG.create({ old_value: updatedSSR.impact, new_value: impact, date_edited: new Date(), edited_by: updateUser, srId: srId })
+          // add to log
         }
         updatedSSR.title = title;
         updatedSSR.description = description;
@@ -106,19 +106,7 @@ const editSr = async (req, res, next) => {
         state.syncStatusName = 'waiting update sync';
         state.syncUpdated = new Date();
         await state.save();
-        // const asr = await ASR.findOne({ where: { srId: srId } });
-        // if (!asr) {
-
-        // } else {
-        // asr.title = title;
-        // asr.description = description;
-        // asr.impact = impact;
-        // asr.sr_cust_module = klhModule;
-        // asr.status = status;
-        // asr.update_time = new Date();
-        // await asr.save();
-
-        // mail.messageRoutelet(asr, route);
+  
         res.status(201).send({ message: 'success' });
         // }
       } else if (state.syncStatus === 6) {
@@ -142,43 +130,33 @@ const deleteSr = async (req, res, next) => {
   const stats = [4, 5, 6];
 
   try {
-    const state = await State.findOne({ where: { srId: srId } });
+    const state = await STATE.findOne({ where: { srId: srId } });
     if (!state) {
-      await State.create({
+      await STATE.create({
         srId: srId,
         syncStatus: 4,
         syncStatusName: 'delete',
         syncUpdated: new Date(),
       });
       const ssr = await SSR.findOne({ where: { id: srId } });
-      const image = await Image.findOne({ where: { sysId: ssr.id } });
+      const image = await BLOB.findOne({ where: { sysId: ssr.id } });
       // mail.messageRoutelet(ssr, route)
       await image.destroy();
       await ssr.destroy();
-      res
-        .status(201)
-        .json({
-          message: 'state does not exist, created a state with id 4 to delete',
-        });
+      res.status(201).json({ message: 'state does not exist, created a state with id 4 to delete' });
     } else {
-      // if (state.syncStatus !== 4 || state.syncStatus !== 5 || state.syncStatus !== 6) {
       if (!stats.includes(state.syncStatus)) {
-        const stateToUpdate = await State.findOne({ where: { srId: srId } });
+        const stateToUpdate = await STATE.findOne({ where: { srId: srId } });
         stateToUpdate.syncStatus = 4;
         stateToUpdate.syncStatusName = 'delete';
         await stateToUpdate.save();
         const ssr = await SSR.findOne({ where: { srId: srId } });
-        const image = await Image.findOne({ where: { sysId: ssr.id } });
+        const image = await BLOB.findOne({ where: { sysId: ssr.id } });
 
         // mail.messageRoutelet(ssr, route)
         await image.destroy();
         await ssr.destroy();
-        res
-          .status(201)
-          .json({
-            message:
-              'sysaid service request destroyed, status updated for deletion',
-          });
+        res.status(201).json({ message: 'sysaid service request destroyed, status updated for deletion' });
       }
     }
   } catch (err) {

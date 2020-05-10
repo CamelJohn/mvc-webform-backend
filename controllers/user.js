@@ -1,5 +1,5 @@
-const User = require('../models/user'); // user model
-const Token = require('../models/token');
+const USER = require('../models/user'); // user model
+const TOKEN = require('../models/token');
 const mail = require('../mail/massage-routelet');
 
 const getAllUsers = async (req, res, next) => {
@@ -23,9 +23,9 @@ const updateUser = async (req, res, next) => {
   const active = req.body.user.isActive;
   const phone = req.body.user.phoneNumber;
   try {    
-    const loggedIn = await User.findOne({ where: { id: req.id }, raw: true });
+    const loggedIn = await USER.findOne({ where: { id: req.id }, raw: true });
     if (loggedIn.role === 1) { // check if user is admin or not     
-      const user = await User.findOne({ where: { id: userId }})    
+      const user = await USER.findOne({ where: { id: userId }})    
           if (user) {
             user.email = email;
             user.fullName = name;
@@ -51,11 +51,11 @@ const deleteUser = async (req, res, next) => {
   const userId = req.body.user;
   // const role = req.body.role;
   try {
-    const loggedIn = await User.findOne({ where: { id: req.id }, raw: true });
+    const loggedIn = await USER.findOne({ where: { id: req.id }, raw: true });
     if (loggedIn.role === 1) {     
-        const user = await User.findOne({ where: {id: userId}})        
+        const user = await USER.findOne({ where: {id: userId}})        
         // const tokens = await Token.findAll({ where: { user_email: user.email }})
-        const tokens = await Token.findAll({ where: { userEmail: user.email }})
+        const tokens = await TOKEN.findAll({ where: { userEmail: user.email }})
         tokens.forEach(token => {
           token.destroy();
         })
@@ -70,8 +70,4 @@ const deleteUser = async (req, res, next) => {
   }
 }
 
-module.exports = {
-  update: updateUser,
-  delete: deleteUser,
-  getAll: getAllUsers
-}
+module.exports = { updateUser, deleteUser, getAllUsers }

@@ -1,5 +1,5 @@
-const User = require('../models/user');
-const Token = require('../models/token');
+const USER = require('../models/user');
+const TOKEN = require('../models/token');
 const Op = require('sequelize');
 
 const bcrypt = require('bcryptjs');
@@ -14,12 +14,12 @@ const updatePassword = async (req, res, next) => {
   const route = req.originalUrl;
 
   try {
-    const loggedIn = await User.findOne({ where: { id: req.id }, raw: true });
+    const loggedIn = await USER.findOne({ where: { id: req.id }, raw: true });
     // const reqUser = await User.findByPk(requestUserId);
     const hash = await bcrypt.hash(pwd, 12);
     if (loggedIn.role === 1) {
       // if requesting user is admin
-      const user = await User.findByPk(userId); // find user to update password
+      const user = await USER.findByPk(userId); // find user to update password
       if (user) {
         //user exists
         user.password = hash;
@@ -45,12 +45,12 @@ const generatKey = async (req, res, next) => {
   const date = setTokenExpirationDate();
 
   try {
-    const user = await User.findOne({ where: { email: email }});
-    const token = await Token.findOne({ where: { userEmail: email } });
+    const user = await USER.findOne({ where: { email: email }});
+    const token = await TOKEN.findOne({ where: { userEmail: email } });
     if (!token) {
       // if email does not exist
       const hash = await bcrypt.hash(newToken, 12);
-      const createdToken = await Token.create({
+      const createdToken = await TOKEN.create({
         token: hash,
         expirtaionDate: date,
         userEmail: email,
@@ -78,11 +78,11 @@ const resetPassword = async (req, res, next) => {
   const token = req.body.token;
   const route = req.originalUrl;
   try {
-    const tokenData = await Token.findOne({ [Op.and]: [ { userEmail: email }, { expirtaionDate: { [Op.gt]: new Date() } }]});
+    const tokenData = await TOKEN.findOne({ [Op.and]: [ { userEmail: email }, { expirtaionDate: { [Op.gt]: new Date() } }]});
     if (tokenData) {
       if (tokenData.token === token) {
         const hash = await bcrypt.hash(pwd, 12);
-        const user = await User.findOne({ where: { email: email } });
+        const user = await USER.findOne({ where: { email: email } });
         user.password = hash;
         await user.save();
         // mail.messageRoutelet(user, route, pwd, 'success');

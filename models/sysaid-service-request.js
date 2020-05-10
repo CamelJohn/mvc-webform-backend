@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../util/database');
 
-const SysaidServiceRequest = sequelize.define('mvcSysaidServiceRequest', {
+const SSR = sequelize.define('mvcSysaidServiceRequest', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -127,4 +127,4 @@ const SysaidServiceRequest = sequelize.define('mvcSysaidServiceRequest', {
   }
 });
 
-module.exports = SysaidServiceRequest;
+module.exports = SSR;

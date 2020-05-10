@@ -3,27 +3,17 @@ require('dotenv').config()
 const express = require('express');
 const bodyParser = require('body-parser');
 
-// db connection config
 const sequelize = require('./util/database');
 
-// routes
-const crudSRRoutes = require('./routes/crud-service-request');
-const userSRRoutes = require('./routes/user-service-request');
-const bulkSRRoutes = require('./routes/bulk-service-request');
 const userRoutes = require('./routes/user');
-const pwdRoutes = require('./routes/password');
-const authRoutes = require('./routes/auth');
+const serviceRequestRoutes = require('./routes/service-request');
 
 const app = express();
 
 app.use(bodyParser.json());
 
 app.use('/user', userRoutes);
-app.use('/password', pwdRoutes);
-app.use('/auth', authRoutes);
-app.use('/crud-service-request', crudSRRoutes);
-app.use('/user-service-request',userSRRoutes);
-app.use('/bulk-service-request', bulkSRRoutes);
+app.use('/service-request', serviceRequestRoutes);
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

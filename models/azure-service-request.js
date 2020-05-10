@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../util/database');
 
-const AzureServiceRequest = sequelize.define('mvcAzureServiceRequest', {
+const ASR = sequelize.define('mvcAzureServiceRequest', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -132,5 +132,5 @@ const AzureServiceRequest = sequelize.define('mvcAzureServiceRequest', {
 
 });
 
-module.exports = AzureServiceRequest;
+module.exports = ASR;
 

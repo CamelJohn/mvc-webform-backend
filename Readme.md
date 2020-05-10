@@ -1,6 +1,6 @@
 # **Mvc Service Requests**
 
-## **Upon  Installation**
+## **Upon Installation**
 
 ```
 whilst installing node_modules you need to change a folder in the sequelize lib :

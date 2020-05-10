@@ -1,30 +1,25 @@
 const router = require('express/index').Router();
 
-const userController = require('../controllers/user');
+const authContorller = require('../controllers/user-auth');
+const userController = require('../controllers/user')
+const passwordController = require('../controllers/password');
+
 const isAuth = require('../middleware/is-auth');
 
-router.get('/all', isAuth, userController.getAll);
+router.post('/auth/login', authContorller.postLogin); 
 
-router.put('/update', isAuth, userController.update);
+router.post('/auth/register', authContorller.postRegister);
 
-router.post('/delete', isAuth, userController.delete); 
+router.put('/password/update', isAuth, passwordController.update);
+
+router.post('/password/key', isAuth, passwordController.generate);
+
+router.post('/password/reset', isAuth, passwordController.reset);
+
+router.get('/all', isAuth, userController.getAllUsers);
+
+router.post('/delete', isAuth, userController.deleteUser);
+
+router.put('/update', isAuth, userController.updateUser);
 
 module.exports = router;
-
-/** @param { Documentation form the routes above }
- *  @author Jonathan Atia
- */
-
- /** @route /user/all
- * @method GET
- */
-
- /** @route /user/update
- * @method PUT
- * @param { role, user: { id, role, email, fullName, isActive, phoneNumber } }
- */
-
- /** @route /user/delete 
- * @method POST
- * @param { userId , role }
-*/

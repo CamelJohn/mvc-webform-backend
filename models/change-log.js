@@ -2,33 +2,33 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../util/database');
 
-const ServiceRequestImages = sequelize.define('mvcServiceRequestImages', {
+const Log = sequelize.define('mvcChaneLog', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
     allowNull: false,
-    primaryKey: true,
+    primaryKey: true
   },
-  sysId: {
+  srId: {
     type: Sequelize.INTEGER,
     allowNull: true,
   },
-  azureId: {
-    type: Sequelize.INTEGER,
-    allowNull: true,
-  },
-  blobName: {
+  old_value: {
     type: Sequelize.STRING,
     allowNull: true,
   },
-  containerName: {
+  new_value: {
     type: Sequelize.STRING,
     allowNull: true,
   },
-  blobServer: {
-    type: Sequelize.INTEGER,
+  edited_by: {
+    type: Sequelize.STRING,
     allowNull: true,
   },
+  date_edited: {
+    type: Sequelize.DATE,
+    allowNull: true
+  }
 });
 
-module.exports = ServiceRequestImages;
+module.exports = Log;

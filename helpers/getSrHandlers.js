@@ -24,4 +24,18 @@ const getAllUserSr = (res, sr) => {
   }
 }; // refactored all service requests (specific user)
 
-module.exports = { getAllOpenSr, getAllClosedSr, getAllUserSr };
+const mergeBlobAndServiceReq = (sr, blob) => {
+  const s = sr;
+  const b = blob;
+  let merged = [];
+  s.map((ssr, id) => {
+    if (ssr.id === b[id].srId) {
+      merged.push({ ...ssr, blobName: b[id].blobName, containerName: b[id].containerName })
+    } else {
+      merged.push({ ...ssr, blobName: null, containerName: null })
+    }
+  })
+  return merged;
+}
+
+module.exports = { getAllOpenSr, getAllClosedSr, getAllUserSr, mergeBlobAndServiceReq };

@@ -2,7 +2,7 @@ const DataType = require('sequelize');
 
 const sequelize = require('../util/database');
 
-const Token = sequelize.define('mvcToken', {
+const TOKEN = sequelize.define('mvcToken', {
   id: {
     type: DataType.INTEGER,
     autoIncrement: true,
@@ -21,10 +21,6 @@ const Token = sequelize.define('mvcToken', {
     type: DataType.STRING,
     allowNull: true,
   },
-  // mvcUserId: {
-  //   type: DataType.INTEGER,
-  //   allowNull: true
-  // }
 });
 
-module.exports = Token;
+module.exports = TOKEN;

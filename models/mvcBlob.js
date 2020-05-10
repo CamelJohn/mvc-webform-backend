@@ -2,14 +2,22 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../util/database');
 
-const Blob = sequelize.define('mvcBlob', {
+const BLOB = sequelize.define('mvcBlob', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
     allowNull: false,
-    primaryKey: true
+    primaryKey: true,
   },
   srId: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+  },
+  sysId: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+  },
+  azureId: {
     type: Sequelize.INTEGER,
     allowNull: true,
   },
@@ -20,7 +28,11 @@ const Blob = sequelize.define('mvcBlob', {
   containerName: {
     type: Sequelize.STRING,
     allowNull: true,
-  }
+  },
+  blobServer: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+  },
 });
 
-module.exports = Blob;
+module.exports = BLOB;

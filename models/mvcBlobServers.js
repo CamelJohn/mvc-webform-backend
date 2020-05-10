@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../util/database');
 
-const BlobServers = sequelize.define('mvcBlobServers', {
+const BLOB_SERVERS = sequelize.define('mvcBlobServers', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -19,4 +19,4 @@ const BlobServers = sequelize.define('mvcBlobServers', {
   },
 });
 
-module.exports = BlobServers;
+module.exports = BLOB_SERVERS;

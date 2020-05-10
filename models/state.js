@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../util/database');
 
-const State = sequelize.define('mvcState', {
+const STATE = sequelize.define('mvcState', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -27,4 +27,4 @@ const State = sequelize.define('mvcState', {
   }
 });
 
-module.exports = State;
+module.exports = STATE;

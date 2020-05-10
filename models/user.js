@@ -2,7 +2,7 @@ const Sequelize = require('sequelize/index');
 
 const sequelize = require('../util/database');
 
-const User = sequelize.define('mvcUser', {
+const USER = sequelize.define('mvcUser', {
   id: { 
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -35,4 +35,4 @@ const User = sequelize.define('mvcUser', {
   },
 });
 
-module.exports = User;
+module.exports = USER;
