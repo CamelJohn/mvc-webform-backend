@@ -22,7 +22,7 @@ const updatePassword = async (req, res, next) => {
         //user exists
         user.password = hash;
         await user.save();
-        // mail.messageRoutelet({ name: user.name, email: user.email }, route, pwd, 'request');
+        mail.messageRoutelet({ name: user.name, email: user.email }, route, pwd, '');
         res.status(201).json({message: 'password was successfully updated'})
       } else {
         // user does not exist
@@ -53,7 +53,7 @@ const generatKey = async (req, res, next) => {
         expirtaionDate: date,
         userEmail: email,
       });
-      mail.messageRoutelet({ user, createdToken }, route, newToken);
+      mail.messageRoutelet({ name: user.name, email: user.email }, route, newToken);
       res.status(201).send({ message: 'token generated successfully!' });
       // res.status(201).send({ id: 2, msg: 'token generated successfully!', key: createdToken });
     } else {

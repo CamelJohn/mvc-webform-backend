@@ -9,24 +9,25 @@ const serviceRequestMsgRouter = (data, route) => {
   
 }
 
-const userMsgRouter = (data, route, state) => {
+const userMsgRouter = (data, route, state, pwd) => {
   if (route.includes('register') && state.includes('waiting')) {
     return userWaiting(data) ; 
   } else if (route.includes('register') && state.includes('accepted')) {
     return userAccepted(data) && registerRequest(data);
-  } else if (route.includes('password/update')) {
-    return userPwdUpdateRequest(data);
-  }
+  } else if (route.includes('key')) {
+    return userPwdUpdateRequest(data, pwd);
+  } 
 }
 
 const userPwdUpdateRequest = (data) => {
   let title = `איפוס סיסמה למערכת לניהול קריאות שירות`;
   let mail = data.email;  
-  // let ref = '<a href="https://targetwebform.z6.web.core.windows.net/login">Target Webform</a>';
-  let output = `
+   let output = `
   <div style="direction: rtl;">
   <p>שלום ${data.name},</p>
-  <p>בקשתך לשינוי סיסמא התקבלה וממתינה לאישור מנהל המערכת..</p>
+  <p>בקשתך לאיפוס סיסמה התקבלה במערכת.</p>
+  <p>אפס סיסמתך באתר באמצעות הקוד הבא: ${pwd}</p>
+  <p>אם לא ביקשת לשנות סיסמה נא לא להיכנס לקישור ולעדכן את מנהל המערכת.</p>
   
   <p>בברכה,</p>
   <p>צוות מערכות מידע</p></div>
@@ -34,9 +35,10 @@ const userPwdUpdateRequest = (data) => {
   return prepareMailBody(mail, title, output);
 }
 
-const adminApproveUserUpdatePwd = (data) => {
+// const adminApproveUserUpdatePwd = (data) => {
 
-}
+// }
+
 
 const userAccepted = (data) => {
   let title = `אישור הרשמה למערכת לניהול קריאות שירות`;

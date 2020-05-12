@@ -6,7 +6,7 @@ const messageRoutelet = (data, route, pwd, state) => {
   let email;
   
   if (route.includes('service-request')) {
-    email = dispenser.serviceRequestMsgRouter(data, route);
+    email = dispenser.serviceRequestMsgRouter(data, route, pwd);
   } else if (route.includes('user')) {
     email = dispenser.userMsgRouter(data, route, state);
   }
