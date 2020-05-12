@@ -1,102 +1,168 @@
-exports.userMessages = (data, route) => {
-  let title;
-  let mail = data.email;
-  let gist;
-  
-  if (route.includes('delete')) {
-    gist = 'Your user has been deleted';
-    title = 'Target webform user deleted';
-  } else if (route.includes('update')) {
-    gist = 'Your user has been deleted';
-    title = 'Target webform user updated';
+const serviceRequestMsgRouter = (data, route) => {
+  if (route.includes('create')) {
+    return createServiceRequest(data);
+  }  else if (route.includes('edit') && !data.isChanged) {
+    return updateServiceRequest(data);
+  } else if (route.includes('edit') && data.isChanged) {
+    return updateServiceRequestStatus(data)
   }
-
-  var output = `
-      <h3>Dear ${data.fullName},</h3>
-      <p>${gist}</p>
-      <p>to register: <a href="https://targetwebform.z6.web.core.windows.net/signup">Target Webform</a> </p>`;
-
-  const body = {
-    from: '"Target webform" <webform@gkan.org.il>',
-    to: `'${mail}'`,
-    subject: title,
-    html: output,
-  };
-  return body;
-};
-
-exports.pwdMessages = (data, route, pwd, state) => {  
-  // console.log(data.token);
   
-  let gist;
-  let gist2;
-  let title;
-  let mail = data.user.email;
-  let link;
-  let ref = `<a href="https://targetwebform.z6.web.core.windows.net/login">Target Webform</a>`;
+}
 
-  if (route.includes('update')) {
-    gist = `Your password has been changed to:  <b>${pwd}</b> , please login and change your password`;
-    link = `to log in: ${ref}`;
-    title = 'User password changed';
-  } else if (route.includes('key')) {   
-    title = 'Token for password change';
-    gist = `Your password token has been successfully generated`;
-    gist2 = `Please sign in with <b>${pwd}</b> within the next 30 minutes, remember this token will expire at ${data.token.expirtaionDate}`;
-    link = `login to view the change: ${ref}`;
-  } else if (route.includes('reset')) {
-    if (state === 'fail') {
-      title = 'Token for password change';
-      gist = 'Your password could not be reset reset';
-    } else {
-      title = 'Token for password change';
-      gist = 'Your password was reset reset';
-      link = `login to view the change: ${ref}`;
-    }
+const userMsgRouter = (data, route, state) => {
+  if (route.includes('register') && state.includes('waiting')) {
+    return userWaiting(data) ; 
+  } else if (route.includes('register') && state.includes('accepted')) {
+    return userAccepted(data) && registerRequest(data);
+  } else if (route.includes('password/update')) {
+    return userPwdUpdateRequest(data);
   }
-  var output = `
-  <h3>Dear ${data.user.fullName ? data.user.fullName : 'customer'},</h3>
-  <p>${gist}</p>
-  <p>${gist2 ? gist2 : ''}</p>
-  <p>${link ? link : ''}</p>`;
+}
 
-  const body = {
-    from: '"Target webform" <webform@gkan.org.il>',
+const userPwdUpdateRequest = (data) => {
+  let title = `איפוס סיסמה למערכת לניהול קריאות שירות`;
+  let mail = data.email;  
+  // let ref = '<a href="https://targetwebform.z6.web.core.windows.net/login">Target Webform</a>';
+  let output = `
+  <div style="direction: rtl;">
+  <p>שלום ${data.name},</p>
+  <p>בקשתך לשינוי סיסמא התקבלה וממתינה לאישור מנהל המערכת..</p>
+  
+  <p>בברכה,</p>
+  <p>צוות מערכות מידע</p></div>
+  `  
+  return prepareMailBody(mail, title, output);
+}
+
+const adminApproveUserUpdatePwd = (data) => {
+
+}
+
+const userAccepted = (data) => {
+  let title = `אישור הרשמה למערכת לניהול קריאות שירות`;
+  let mail = data.email;  
+  let ref = '<a href="https://targetwebform.z6.web.core.windows.net/login">Target Webform</a>';
+  let output = `
+  <div style="direction: rtl;">
+  <p>שלום ${data.name},</p>
+  <p>בקשתך לרישום אושרה ע"י מנהל המערכת.</p>
+  <p>שם משתמש: ${data.name}</p>
+  <p>ניתן להיכנס למערכת ע"י הקישור הבא: ${ref}</p>
+  
+  <p>בברכה,</p>
+  <p>צוות מערכות מידע</p></div>
+  `  
+  return prepareMailBody(mail, title, output);
+}
+
+const userWaiting = (data) => {
+  let title = `שלום ${data.name}`;
+  let mail = data.email;  
+  let output = `
+  <div style="direction: rtl;">
+  <p>בקשתך לרישום למערכת קריאות שירות עבור מערכת טראפיק התקבלה במערכת.</p>
+  <p>הבקשה ממתינה לאישור של מנהל המערכת.</p>
+  <p>לאחר אישור המשתמש ישלח מייל אישור</p>
+  
+  <p>בברכה,</p>
+  <p>צוות מערכות מידע</p></div>
+  `  
+  return prepareMailBody(mail, title, output);
+}
+
+const registerRequest = (data) => {
+  let title = `משתמש חדש מחכה לאישורך`;
+  let mail = '';  
+  let output = `
+  <div style="direction: rtl;">
+  <p>שלום רב,</p>
+  <p>מחכה לאישורך משתמש חדש בשם ${data.name}</p>
+  <p>יש להכנס למערכת על מנת לאשר </p>
+  
+  <p>בברכה,</p>
+  <p>צוות מערכות מידע</p></div>
+  `  
+  return prepareMailBody(mail, title, output);
+}
+
+const createServiceRequest = (data) => {
+  
+  let title = `נפתחה קריאת שירות חדשה במערכת ${data.system}, מספר ${data.srId}`;
+  let mail = data.email;  
+  let output = `
+  <div style="direction: rtl;">
+  <p>שלום רב,</p>
+  <p>קטגוריה: ${data.category} ${data.subCategory}</p>
+
+  <p>מודול: ${data.klhModule}</p>
+  <p>כותרת: ${data.title}</p>
+  <p>תיאור: ${data.description}</p>
+  <p>משתמש בקשה: ${data.name}</p>
+
+  <p>דחיפות: ${data.impact}</p>
+  <p>בברכה,</p>
+  <p>צוות מערכות מידע</p></div>
+  `  
+  return prepareMailBody(mail, title, output);
+}
+
+const updateServiceRequestStatus = (data) => {
+  console.log(data);
+  
+  let title = `קריאה שמספרה ${data.srId} עודכנה`;
+  let mail = data.email;  
+  let output = `
+  <div style="direction: rtl;">
+  <p>שלום,</p>
+  
+  <p>קטגוריה: ${data.category} ${data.subCategory}</p>
+
+  <p>מודול: ${data.module}</p>
+  <p>כותרת: ${data.title}</p>
+  <p>תיאור: ${data.description}</p>
+  <p>משתמש בקשה: ${data.name}</p>
+
+  <p>דחיפות: ${data.impact}</p>
+  <p>בברכה,</p>
+  <p>צוות מערכות מידע</p></div>
+  `
+  return prepareMailBody(mail, title, output);
+}
+
+const updateServiceRequest = (data) => {
+  console.log(data);
+  
+  let title = `קריאה שמספרה ${data.srId} שונתה לסטאטוס ${data.status}`;
+  let mail = data.email;  
+  let output = `
+  <div style="direction: rtl;">
+  <p>שלום,</p>
+  <p>סטאטוס הקריאה השתנה ל${data.status}</p>
+  <p>קטגוריה: ${data.category} ${data.subCategory}</p>
+
+  <p>מודול: ${data.module}</p>
+  <p>כותרת: ${data.title}</p>
+  <p>תיאור: ${data.description}</p>
+  <p>משתמש בקשה: ${data.name}</p>
+
+  <p>דחיפות: ${data.impact}</p>
+  <p>בברכה,</p>
+  <p>צוות מערכות מידע</p></div>
+  `
+  return prepareMailBody(mail, title, output);
+}
+
+const prepareMailBody = (mail, title, output) => {
+  
+  let body = {
+    from: '"Target webform" <webform@kan.org.il>',
     to: mail,
     subject: title,
     html: output,
   };
+  // console.log(body);
+  
   return body;
-};
+}
 
-exports.srMessages = (data, route) => {
-  let gist;
-  let gist2 = `service request number: <b>${data.srId}</b> `;
-  let title;
-  let mail = data.email_open;
-  let link;
-  let ref = `<a href="https://targetwebform.z6.web.core.windows.net/login">Target Webform</a>`;
-
-  if (route.includes('delete')) {
-    gist = `your service request was deleted`;
-    title = 'Service reqeust deleted';
-  } else if (route.includes('update')) {
-    gist = `your service request was updated`;
-    link = `login to view the change: ${ref}`;
-    title = 'Service reqeust updated';
-  }
-
-  var output = `
-  <h3>Dear ${data.name_open ? data.name_open : 'customer'},</h3>
-  <p>${gist}</p>
-  <p>${gist2 ? gist2 : ''}</p>
-  <p>${link ? link : ''}</p>`;
-
-  const body = {
-    from: '"Target webform" <webform@gkan.org.il>',
-    to: `'${mail}'`,
-    subject: title,
-    html: output,
-  };
-  return body;
-};
+module.exports = { serviceRequestMsgRouter, userMsgRouter }

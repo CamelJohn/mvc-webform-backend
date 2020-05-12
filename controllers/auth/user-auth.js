@@ -1,16 +1,17 @@
-const USER = require('../models/user'); // user model
-
-const Token = require('../models/token');
+const TOKEN = require('../../models/token');
 const bcrypt = require('bcryptjs');
+const mail = require('../../mail/massage-routelet');
 
-const { loginJWTToken, tokenGenerator, setTokenExpirationDate } = require('../helpers/tokenHandlers');
+const { loginJWTToken, tokenGenerator, setTokenExpirationDate } = require('../../helpers/tokenHandlers');
+const  { createUser } = require('./helpers');
+const { findUserByEmail } = require('../../shared/querries');
 
 const postLogin = async (req, res, next) => {
   const email = req.body.email;
   const pwd = req.body.password;
 
   try {
-    const user = await USER.findOne({ where: { email: email } });
+    const user = await findUserByEmail(email);
     if (user && user.isActive === true) {
       // check if user exists and is active
       const isEqual = await bcrypt.compare(pwd, user.password); // compare passwords
@@ -34,20 +35,15 @@ const postRegister = async (req, res, next) => {
   const email = req.body.email;
   const name = req.body.name;
   const phone = req.body.phoneNumber;
+  const route = req.originalUrl;
 
   try {
     const hash = await bcrypt.hash(pwd, 12);
-    const user = await USER.findOne({ where: { email: email } });
+    const user = await findUserByEmail(email);
     if (!user) {
       // if user does not exist
-      const createdUser = await USER.create({
-        email: email,
-        password: hash,
-        fullName: name,
-        isActive: 0, // not active by default
-        role: 3,
-        phoneNumber: phone,
-      });
+      const createdUser = await createUser(email, hash, name, phone);
+      mail.messageRoutelet({ name: name, email: email }, route, null, 'waiting');
       const expirationDate = setTokenExpirationDate();
       const newToken = tokenGenerator();
       await TOKEN.create({ token: newToken, expirationDate: expirationDate, userEmail: email });

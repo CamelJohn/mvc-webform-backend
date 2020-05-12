@@ -1,8 +1,8 @@
 const router = require('express/index').Router();
 
-const authContorller = require('../controllers/user-auth');
-const userController = require('../controllers/user')
-const passwordController = require('../controllers/password');
+const authContorller = require('../controllers/auth/user-auth');
+const userController = require('../controllers/user/user');
+const passwordController = require('../controllers/password/password');
 
 const isAuth = require('../middleware/is-auth');
 

@@ -1,30 +1,28 @@
-const USER = require('../models/user');
-const TOKEN = require('../models/token');
+const TOKEN = require('../../models/token');
 const Op = require('sequelize');
 
 const bcrypt = require('bcryptjs');
-const { tokenGenerator, setTokenExpirationDate } = require('../helpers/tokenHandlers');
-const mail = require('../mail/massage-routelet');
+const { tokenGenerator, setTokenExpirationDate } = require('../../helpers/tokenHandlers');
+const { findUserByEmail, findUserById } = require('../../shared/querries');
+const mail = require('../../mail/massage-routelet');
 
 const updatePassword = async (req, res, next) => {
-  // const requestUserId = req.body.id;
-  // const userId = req.body.id2;
   const userId = req.body.id;
   const pwd = req.body.password;
   const route = req.originalUrl;
 
   try {
-    const loggedIn = await USER.findOne({ where: { id: req.id }, raw: true });
+    const loggedIn = await findUserById(req.id);
     // const reqUser = await User.findByPk(requestUserId);
     const hash = await bcrypt.hash(pwd, 12);
     if (loggedIn.role === 1) {
       // if requesting user is admin
-      const user = await USER.findByPk(userId); // find user to update password
+      const user = await findUserById(userId); // find user to update password
       if (user) {
         //user exists
         user.password = hash;
         await user.save();
-        // mail.messageRoutelet(user, route, pwd);
+        // mail.messageRoutelet({ name: user.name, email: user.email }, route, pwd, 'request');
         res.status(201).json({message: 'password was successfully updated'})
       } else {
         // user does not exist
@@ -45,7 +43,7 @@ const generatKey = async (req, res, next) => {
   const date = setTokenExpirationDate();
 
   try {
-    const user = await USER.findOne({ where: { email: email }});
+    const user = await findUserByEmail(email);
     const token = await TOKEN.findOne({ where: { userEmail: email } });
     if (!token) {
       // if email does not exist
@@ -82,10 +80,10 @@ const resetPassword = async (req, res, next) => {
     if (tokenData) {
       if (tokenData.token === token) {
         const hash = await bcrypt.hash(pwd, 12);
-        const user = await USER.findOne({ where: { email: email } });
+        const user = await findUserByEmail(email);
         user.password = hash;
         await user.save();
-        // mail.messageRoutelet(user, route, pwd, 'success');
+        mail.messageRoutelet(user, route, pwd, 'password waiting');
         res.status(201).send({ message: 'password updated' });
       } else {
         // mail.messageRoutelet({ email: email }, route, pwd, 'fail');

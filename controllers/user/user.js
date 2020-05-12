@@ -1,10 +1,12 @@
-const USER = require('../models/user'); // user model
-const TOKEN = require('../models/token');
-const mail = require('../mail/massage-routelet');
+const TOKEN = require('../../models/token');
+const mail = require('../../mail/massage-routelet');
+const USER = require('../../models/user');
+const { findUserById } = require('../../shared/querries');
+const { updateThisUser } = require('./helpers');
 
 const getAllUsers = async (req, res, next) => {
   try {    
-    const users = await User.findAll()
+    const users = await USER.findAll()
     if (users) {
       res.status(200).send({ users: users})
     }
@@ -14,8 +16,8 @@ const getAllUsers = async (req, res, next) => {
 }
 
 const updateUser = async (req, res, next) => {
+  
   const route = req.originalUrl;  
-  // const role = req.body.role;
   const userRole = req.body.user.role;
   const userId = req.body.user.id;
   const email = req.body.user.email;
@@ -23,18 +25,15 @@ const updateUser = async (req, res, next) => {
   const active = req.body.user.isActive;
   const phone = req.body.user.phoneNumber;
   try {    
-    const loggedIn = await USER.findOne({ where: { id: req.id }, raw: true });
+    const loggedIn = await findUserById(req.id);
     if (loggedIn.role === 1) { // check if user is admin or not     
-      const user = await USER.findOne({ where: { id: userId }})    
+      const user = await findUserById(userId)    
           if (user) {
-            user.email = email;
-            user.fullName = name;
-            user.isActive = active;
-            user.role = userRole;
-            user.phoneNumber = phone;
-            await user.save()
-            // mail.messageRoutelet(user, route);
-            res.status(201).send({ message: `${user.fullName} successfully updated` })
+            await updateThisUser(email, name, active, userRole, phone);
+            if (active === 1)  {
+              mail.messageRoutelet({ name: name, email: email }, route, 'accepted');
+            }
+            res.status(201).send({ message: `${name} successfully updated` })
           } else {
             res.status(422).send({ message: 'unauthorized user' })
           }
@@ -49,17 +48,14 @@ const updateUser = async (req, res, next) => {
 const deleteUser = async (req, res, next) => { 
   const route = req.originalUrl;  
   const userId = req.body.user;
-  // const role = req.body.role;
   try {
-    const loggedIn = await USER.findOne({ where: { id: req.id }, raw: true });
+    const loggedIn = await findUserById(req.id);
     if (loggedIn.role === 1) {     
-        const user = await USER.findOne({ where: {id: userId}})        
-        // const tokens = await Token.findAll({ where: { user_email: user.email }})
+        const user = await findUserById(userId);        
         const tokens = await TOKEN.findAll({ where: { userEmail: user.email }})
         tokens.forEach(token => {
           token.destroy();
         })
-        // mail.messageRoutelet(user, route);
         await user.destroy();
         res.status(201).send({ message:`user deleted successfully`})
     } else {
