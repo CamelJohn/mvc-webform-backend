@@ -22,4 +22,6 @@ router.post('/delete', isAuth, userController.deleteUser);
 
 router.put('/update', isAuth, userController.updateUser);
 
+router.get('/role', isAuth, userController.getRole);
+
 module.exports = router;

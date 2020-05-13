@@ -9,6 +9,7 @@ const { findUserByEmail } = require('../../shared/querries');
 const postLogin = async (req, res, next) => {
   const email = req.body.email;
   const pwd = req.body.password;
+console.log('dingo');
 
   try {
     const user = await findUserByEmail(email);

@@ -57,4 +57,9 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-module.exports = { updateUser, deleteUser, getAllUsers };
+const getRole = async (req, res, next) => {
+  const user = await findUserById(req.id);
+  res.status(200).send({ user: user.role });
+};
+
+module.exports = { updateUser, deleteUser, getAllUsers, getRole };
