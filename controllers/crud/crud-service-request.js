@@ -124,7 +124,7 @@ const editSr = async (req, res, next) => {
       }
     }
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(500).send(err.message + 'here');
   }
 };
 
@@ -153,7 +153,7 @@ const deleteSr = async (req, res, next) => {
         await ssr.destroy();
         res.status(201).json({ message: 'sysaid service request destroyed, status updated for deletion' });
       }
-      res.status(201).json({ message: 'nothing to delete' });
+      res.status(401).json({ message: 'nothing to delete' });
     }
   } catch (err) {
     res.status(500).send(err.message);

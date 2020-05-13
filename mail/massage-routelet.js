@@ -10,13 +10,13 @@ const messageRoutelet = (data, route, pwd, state) => {
   } else if (route.includes('user')) {
     email = dispenser.userMsgRouter(data, route, state);
   }
+  console.log(email);
   
   mailSender(email);
 };
 
 const mailSender = async (mail) => {  
-  console.log(mail);
-  
+   
   // try {
   //   await axios.post('http://localhost:8081/mail/send', {
   //     mail: mail,

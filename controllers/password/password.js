@@ -26,7 +26,7 @@ const updatePassword = async (req, res, next) => {
         res.status(201).json({message: 'password was successfully updated'})
       } else {
         // user does not exist
-        res.status(422).json({ message: 'unauthorized user'})
+        res.status(404).json({ message: 'used does not exist'})
       }
     } else {
       res.status(422).json({ message: 'unauthorized user'})
@@ -36,7 +36,7 @@ const updatePassword = async (req, res, next) => {
   }
 };
 
-const generatKey = async (req, res, next) => {
+const generateKey = async (req, res, next) => {
   const route = req.originalUrl;
   const email = req.body.email;
   const newToken = tokenGenerator();
@@ -100,6 +100,6 @@ const resetPassword = async (req, res, next) => {
 
 module.exports = {
   reset: resetPassword,
-  generate: generatKey,
+  generate: generateKey,
   update: updatePassword,
 };

@@ -1,4 +1,4 @@
-const updateThisUser = async (email, name, active, userRole, phone) => {
+const updateThisUser = async (user, email, name, active, userRole, phone) => {
     user.email = email;
     user.fullName = name;
     user.isActive = active;

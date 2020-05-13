@@ -23,7 +23,7 @@ const postLogin = async (req, res, next) => {
       }
     } else {
       // what to do if user does not exist or not active
-      res.status(404).send({ message: 'the user is not active or does not exist' });
+      res.status(404).send({ message: 'user not active or does not exist' });
     }
   } catch (err) {
     res.status(500).json({ message: err.message });

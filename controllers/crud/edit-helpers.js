@@ -1,3 +1,4 @@
+const STATE = require('../../models/state');
 const createEditState = async (srId) => {
   await STATE.create({
     srId: srId,
